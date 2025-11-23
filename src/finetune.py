@@ -145,17 +145,18 @@ def main():
 
     # TODO: Apply different optimizer
     if args.optimization_method == "adam":
-        optimizer = optim.XXX(
+        optimizer = optim.AdamW(
             model.parameters(),
             lr=args.learning_rate,
             weight_decay=args.weight_decay,
             betas=(args.beta1, args.beta2)
         )
     elif args.optimization_method == "sgd":
-        optimizer = optim.XXX(
+        optimizer = optim.SGD(
             model.parameters(),
             lr=args.learning_rate,
-            weight_decay=args.weight_decay
+            weight_decay=args.weight_decay,
+            momentum=0.9,
         )
     elif args.optimization_method == "lora":
         print(f"Setting up LoRA with rank={args.lora_rank}")
@@ -165,7 +166,8 @@ def main():
             bias="none",
             lora_dropout=0.05,
             task_type="CAUSAL_LM",
-            target_modules=[XXX], # Apply Lora to all possible modules
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj",
+            "gate_proj", "down_proj", "up_proj"], # Apply Lora to all possible modules
         )
         model = get_peft_model(model, lora_config)
         trainable_params = [p for p in model.parameters() if p.requires_grad]
